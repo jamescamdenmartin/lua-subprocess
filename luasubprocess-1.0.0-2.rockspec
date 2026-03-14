@@ -1,9 +1,9 @@
 rockspec_format = "3.0"
 package = "luasubprocess"
-version = "1.0.0-1"
+version = "1.0.0-2"
 source = {
   url = "git+https://github.com/jamescamdenmartin/lua-subprocess.git",
-  tag = "1.0.0-1"
+  tag = "1.0.0-2"
 }
 description = {
   summary = "This is a Lua module that allows you to create child processes and communicate with them.",
