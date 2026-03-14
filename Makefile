@@ -5,7 +5,7 @@ ASCIIDOC ?= asciidoc
 SOURCES := subprocess.c liolib-copy.c
 VERSION := 0.02
 DISTDIR := lua-subprocess-$(VERSION)
-DISTFILES := Makefile $(SOURCES) liolib-copy.h subprocess.txt subprocess.html
+DISTFILES := Makefile $(SOURCES) liolib-copy.h subprocess.txt luasubprocess.html
 
 lua_package := lua
 INSTALL_CMOD := $(shell pkg-config --variable=INSTALL_CMOD $(lua_package))
@@ -22,25 +22,25 @@ CFLAGS ?= -Wall -Wextra -pedantic -O2
 LUA_CFLAGS := $(shell pkg-config --cflags --libs $(lua_package))
 
 .PHONY: all
-all: subprocess.so subprocess.html
+all: luasubprocess.so luasubprocess.html
 
-subprocess.so: $(SOURCES)
+luasubprocess.so: $(SOURCES)
 	$(CC) $(CFLAGS) $(LUA_CFLAGS) -DOS_POSIX -shared -fPIC -o $@ $(SOURCES)
 
-subprocess.html: subprocess.txt
+luasubprocess.html: subprocess.txt
 	$(ASCIIDOC) $<
 
 .PHONY: clean
 clean:
-	$(RM) subprocess.so
+	$(RM) luasubprocess.so
 
 .PHONY: install
-install: subprocess.so
-	$(INSTALL) -m755 subprocess.so $(INSTALL_CMOD)/
+install: luasubprocess.so
+	$(INSTALL) -m755 luasubprocess.so $(INSTALL_CMOD)/
 
 .PHONY: uninstall
 uninstall:
-	$(RM) $(INSTALL_CMOD)/subprocess.so
+	$(RM) $(INSTALL_CMOD)/luasubprocess.so
 
 .PHONY: dist
 dist: $(DISTFILES)
