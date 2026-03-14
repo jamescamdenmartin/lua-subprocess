@@ -14,7 +14,7 @@ Tested under Windows, Linux and Wine. Needs more testing.
 == Building
 
 Building lua-subprocess without the makefile is very simple. All you
-need to do is compile subprocess.c and liolib-copy.c into a shared
+need to do is compile luasubprocess.c and liolib-copy.c into a shared
 object, linked against your Lua library, making sure you define either
 OS_POSIX or OS_WINDOWS, depending on your platform.
 
@@ -29,12 +29,12 @@ cause crashing!
 .Example
 --------------------------
 gcc -fPIC -shared -DOS_POSIX -DSHARE_LIOLIB -o subprocess.so \
-    subprocess.c liolib-copy.c -llua
+    luasubprocess.c liolib-copy.c -llua
 --------------------------
 
 == Functions
 
-==== subprocess.popen { arg1, arg2, ..., [options...] }
+==== luasubprocess.popen { arg1, arg2, ..., [options...] }
 Creates a child process with the arguments arg1, arg2 etc. Options
 are table items with string keys. The valid options are:
 
@@ -81,32 +81,32 @@ may or may not be nil, depending on the nature of the error).
 On success, returns a proc object (see <<procobj,below>>).
 On failure, returns `nil, errormsg, errno`.
 
-==== subprocess.call { arg1, arg2, ..., [options...] }
+==== luasubprocess.call { arg1, arg2, ..., [options...] }
 Creates a child process in the same way as `subprocess.popen` but waits
 for the child to finish executing, then sets and returns the `exitcode`.
 
 WARNING: Do not set `stdin`, `stdout` or `stderr` to `subprocess.PIPE`
-when calling `subprocess.call`, as it will deadlock when a pipe buffer
+when calling `luasubprocess.call`, as it will deadlock when a pipe buffer
 is filled.
 
 ===== Return value
 Returns `exitcode`. See: <<exitcode,exitcode>>.
 
-==== subprocess.call_capture { arg1, arg2, ..., [options...] }
+==== luasubprocess.call_capture { arg1, arg2, ..., [options...] }
 Creates a child process in the same way as `subprocess.popen` but reads
 all data from the child's standard output and returns it. If you want to
 capture stderr as well, set `stderr` to `subprocess.STDOUT`.
 
 WARNING: Do not set `stderr` to `subprocess.PIPE`, it can deadlock.
 
-WARNING: `subprocess.call_capture` captures all the child process's output
+WARNING: `luasubprocess.call_capture` captures all the child process's output
 into memory, so if the child produces a huge amount of output, memory might be
 exhausted.
 
 ===== Return value
 Returns `exitcode, content` where `content` is a string containing the captured output.
 
-==== subprocess.wait()
+==== luasubprocess.wait()
 Waits for any child process to exit.
 
 ===== Return value
