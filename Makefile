@@ -2,7 +2,7 @@
 
 INSTALL ?= install
 ASCIIDOC ?= asciidoc
-SOURCES := subprocess.c liolib-copy.c
+SOURCES := luasubprocess.c liolib-copy.c
 VERSION := 0.02
 DISTDIR := lua-subprocess-$(VERSION)
 DISTFILES := Makefile $(SOURCES) liolib-copy.h subprocess.txt luasubprocess.html
