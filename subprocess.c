@@ -33,6 +33,7 @@
 #include "lauxlib.h"
 #include "stdlib.h"
 #include "stdio.h"
+#include "signal.h"
 #include "string.h"
 #include "errno.h"
 #include "fcntl.h"
