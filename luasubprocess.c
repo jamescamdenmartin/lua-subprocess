@@ -98,16 +98,16 @@ struct proc {
 };
 
 /* Lua registry key for proc metatable */
-#define SP_PROC_META "subprocess_proc*"
+#define SP_PROC_META "luasubprocess_proc*"
 
 /* Environment keys */
 /* This is an integer index into the environment of C functions in this module.
    At this index is stored a table of [pid]=proc items. The items in this table
    will all have their `done` fields set to false. This table is at present only
-   used for the `subprocess.wait` function.
+   used for the `luasubprocess.wait` function.
    On POSIX, it is used to get the proc object corresponding to a pid. On
    Windows, it is used to assemble a HANDLE array for WaitForMultipleObjects. */
-#define SP_LIST "subprocess_pid_list"
+#define SP_LIST "luasubprocess_pid_list"
 
 /* Function to count number of keys in a table.
    Table must be at top of stack. */
@@ -158,7 +158,7 @@ static void doneproc(lua_State *L, int index)
 {
     struct proc *proc = toproc(L, index);
     if (!proc){
-        fputs("subprocess.c: doneproc: not a proc\n", stderr);
+        fputs("luasubprocess.c: doneproc: not a proc\n", stderr);
     } else {
         proc->done = 1;
         /* remove proc from SP_LIST */
@@ -167,14 +167,14 @@ static void doneproc(lua_State *L, int index)
         luaL_getmetatable(L, SP_LIST);
         /* stack: proc list */
         if (lua_isnil(L, -1)){
-            fputs("subprocess.c: XXX: SP_LIST IS NIL\n", stderr);
+            fputs("luasubprocess.c: XXX: SP_LIST IS NIL\n", stderr);
         } else {
             lua_pushinteger(L, proc->pid);      /* stack: proc list pid */
             lua_pushvalue(L, -1);               /* stack: proc list pid pid */
             lua_gettable(L, -3);                /* stack: proc list pid proc2 */
             if (!lua_equal(L, -4, -1)){
                 /* lookup by pid didn't work */
-                fputs("subprocess.c: doneproc: XXX: pid lookup in SP_LIST failed\n", stderr);
+                fputs("luasubprocess.c: doneproc: XXX: pid lookup in SP_LIST failed\n", stderr);
                 lua_pop(L, 2);                  /* stack: proc list */
             } else {
                 lua_pop(L, 1);                  /* stack: proc list pid */
@@ -505,7 +505,7 @@ pipe_failure:
         /* change directory */
         if (cwd && chdir(cwd)) goto child_failure;
 
-        /* exec! Farewell, subprocess.c! */
+        /* exec! Farewell, luasubprocess.c! */
         execvp(executable, (char *const*) args); /* XXX: const cast */
 
         /* Oh dear, we're still here. */
@@ -904,7 +904,7 @@ files_failure:
     /* Put proc object in SP_LIST table */
     luaL_getmetatable(L, SP_LIST);
     if (lua_isnil(L, -1)){
-        fputs("subprocess.c: XXX: SP_LIST IS NIL\n", stderr);
+        fputs("luasubprocess.c: XXX: SP_LIST IS NIL\n", stderr);
     } else {
         lua_pushinteger(L, proc->pid); /* stack: list pid */
         lua_pushvalue(L, 2);           /* stack: list pid proc */
@@ -1209,14 +1209,14 @@ static int superwait(lua_State *L)
     lua_pushvalue(L, -1);    /* stack: list pid pid */
     lua_gettable(L, -3);     /* stack: list pid proc */
     if (lua_isnil(L, -1)){
-        fprintf(stderr, "subprocess.c: XXX: cannot find proc object for pid %d\n", (int) pid);
+        fprintf(stderr, "luasubprocess.c: XXX: cannot find proc object for pid %d\n", (int) pid);
     }
     lua_replace(L, -3);     /* stack: proc pid */
     lua_pop(L, 1);          /* stack: proc */
     /* update proc object */
     proc = toproc(L, -1);
     if (!proc){
-        fputs("subprocess.c: XXX: proc list entry is wrong type\n", stderr);
+        fputs("luasubprocess.c: XXX: proc list entry is wrong type\n", stderr);
     } else {
         proc->exitcode = exitcode;
         doneproc(L, -1);
@@ -1240,7 +1240,7 @@ static int superwait(lua_State *L)
             if (proc && !proc->done && i < nprocs){
                 handles[i++] = proc->hProcess;
             } else if (proc && !proc->done){
-                fputs("subprocess.c: XXX: handles array allocated too small\n", stderr);
+                fputs("luasubprocess.c: XXX: handles array allocated too small\n", stderr);
             } else if (!proc){
                 fputs("foreign object in SP_LIST\n", stderr);
             }
@@ -1299,7 +1299,7 @@ static int superwait(lua_State *L)
 #endif
 }
 
-static const luaL_Reg subprocess[] = {
+static const luaL_Reg luasubprocess[] = {
     /* {"pipe", superpipe}, */
     {"popen", superpopen},
     {"call", call},
@@ -1309,7 +1309,7 @@ static const luaL_Reg subprocess[] = {
     {NULL, NULL}
 };
 
-LUALIB_API int luaopen_subprocess(lua_State *L)
+LUALIB_API int luaopen_luasubprocess(lua_State *L)
 {
     /* create environment table for C functions */
     lua_newtable(L);
@@ -1318,10 +1318,10 @@ LUALIB_API int luaopen_subprocess(lua_State *L)
     lua_pop(L, 1);
 
 #if LUA_VERSION_NUM >= 502
-    lua_createtable(L, 0, sizeof subprocess / sizeof *subprocess - 1);
-    luaL_setfuncs(L, subprocess, 0);
+    lua_createtable(L, 0, sizeof luasubprocess / sizeof *luasubprocess - 1);
+    luaL_setfuncs(L, luasubprocess, 0);
 #else
-    luaL_register(L, "subprocess", subprocess);
+    luaL_register(L, "luasubprocess", luasubprocess);
 #endif
 
     /* export PIPE and STDOUT constants */
